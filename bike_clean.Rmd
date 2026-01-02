@@ -1,0 +1,128 @@
+---
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+library(tidyverse)
+library(drc)
+library(dplyr)
+library(plyr)
+library(ggpmisc)
+library(RColorBrewer)
+library(openxlsx)
+library(forcats)
+library(lme4)
+library(Matrix)
+library(stringr)
+library(reshape2)
+library(pwr)
+library(effsize)
+library(ggsignif)
+library(readr)
+
+#load(".RData")
+```
+
+Load in data
+
+```{r}
+this_dir <- getwd()
+
+# get file
+file <- list.files(this_dir, pattern = "202506-baywheels-tripdata", full.names = TRUE)
+
+# read csv
+session_log <- read.csv(file)
+
+df <- data.frame(session_log)
+```
+
+Clean Data
+
+```{r}
+#remove rows that have na and empty ones ""
+filter_df <- df %>%
+  filter(!is.na(start_station_id), 
+         !is.na(start_station_name),
+         start_station_id != "",
+         start_station_name != "")
+
+#remove unneccesary columns
+filter_df <- filter_df %>% 
+  dplyr::select(-ride_id, -ended_at, 
+                -end_station_name, -end_station_id, 
+                -end_lat, -end_lng, -start_lng, -start_lat)
+```
+
+
+```{r}
+#Split Time into Useful Features
+clean_df <- filter_df %>%
+  mutate(
+    # Extract datetime components
+    #date = as.Date(started_at),
+    hour = hour(started_at),
+    day_of_week = wday(started_at, label = FALSE),  # 1=Sunday, 7=Saturday
+    day_of_month = day(started_at),
+    month = month(started_at),
+    
+    # Binary indicators
+    weekend = ifelse(day_of_week %in% c(1, 7), 1, 0),
+    
+    # Holiday indicator (you'll need to define holiday dates)
+    #holiday = ifelse(date %in% holiday_dates, 1, 0),
+    
+    # Working day (weekday AND not holiday)
+    workingday = ifelse(weekend == 0, 1, 0),
+    
+    # Time of day categories
+    #time_category = case_when(
+    #  hour >= 0 & hour <= 6 ~ "early_morning",
+    #  hour >= 7 & hour <= 9 ~ "morning_rush",
+    #  hour >= 10 & hour <= 15 ~ "midday",
+    #  hour >= 16 & hour <= 19 ~ "evening_rush",
+    #  hour >= 20 & hour <= 23 ~ "evening"
+    #),
+    
+    # Rush hour binary
+    is_rush_hour = ifelse(hour %in% c(7,8,9,17,18,19), 1, 0)
+  )
+
+#remove started at from cleandf and start station name
+clean_df <- clean_df %>% 
+  dplyr::select(-start_station_name, -started_at)
+
+```
+
+
+```{r}
+#save clean_df as .csv
+filename <- "clean.csv"
+write_csv(clean_df, filename)
+```
+
+#### Calculate Demands for Each Station To Prep
+
+```{r}
+# Count how many trips departed from each station during each hour
+df_hourly <- clean_df %>%
+  dplyr::group_by(
+    start_station_id,
+    hour,
+    day_of_week,
+    day_of_month,
+    weekend,
+    workingday,
+    is_rush_hour
+  ) %>%
+  dplyr::summarise(
+    demand = dplyr::n(),
+    .groups = 'drop'
+  )
+
+filename <- "hourly.csv"
+write_csv(df_hourly, filename)
+```
+
