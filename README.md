@@ -12,3 +12,6 @@ Log of changes are as follows:
 - Added hourly.csv
   - product of clean_df being processed by bike_clean.Rmd last chunk
     - sorts demand by station and hour
+
+#### 01/02/2026
+- Added bike.py to perform a random forest
