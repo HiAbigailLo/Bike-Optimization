@@ -1,0 +1,4 @@
+Model,Correlation,MAE,RMSE
+Baseline (7 features),0.7009,1.2578,1.9047
+Simplified (4 features),0.7021,1.2556,1.9012
+Tuned (4 features),0.7190707460777154,1.2009444951233388,1.836558120413221

@@ -15,3 +15,19 @@ Log of changes are as follows:
 
 #### 01/02/2026
 - Added bike.py to perform a random forest
+
+#### 01/03/2026
+- Added models.py
+  - created a baseline random forest model 
+
+- Added models2.py
+  - trains Random Forest, k-NN (k=10), k-NN (k=5), Decision Tree, Gradient Boosting, and Linear Regression models
+  - Lists all of the models' Correlation, MAE, RMSE, R², Train_Time_sec, Predict_Time_sec to compare
+
+- Added feature.py
+  - performs feature selection
+
+- Added parameter.py
+  - performs parameter tuning
+
+  

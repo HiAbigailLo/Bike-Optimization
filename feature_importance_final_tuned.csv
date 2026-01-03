@@ -1,0 +1,5 @@
+Feature,Importance
+station_numeric,0.62368757059986
+hour,0.19039679160260958
+day_of_week,0.1002950965296723
+day_of_month,0.08562054126785816
