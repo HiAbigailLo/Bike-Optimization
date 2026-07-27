@@ -1,0 +1,188 @@
+---
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+library(tidyverse)
+library(drc)
+library(dplyr)
+library(plyr)
+library(ggpmisc)
+library(RColorBrewer)
+library(openxlsx)
+library(forcats)
+library(lme4)
+library(Matrix)
+library(stringr)
+library(reshape2)
+library(pwr)
+library(effsize)
+library(ggsignif)
+library(readr)
+
+#load(".RData")
+```
+
+
+Load in data
+
+```{r}
+this_dir <- getwd()
+
+# get file
+file <- list.files(this_dir, pattern = "202506-baywheels-tripdata", full.names = TRUE)
+
+# read csv
+session_log <- read.csv(file)
+
+df <- data.frame(session_log)
+```
+
+Delete columns
+
+```{r}
+filter_df <- df %>%
+  filter(!is.na(start_station_id), 
+         !is.na(start_station_name),
+         start_station_id != "",
+         start_station_name != "")
+
+filter_df <- filter_df %>% 
+  dplyr::select(-ride_id, -ended_at, 
+                -end_station_name, -end_station_id, 
+                -end_lat, -end_lng, -start_lng, -start_lat)
+
+# After reading your Bay Wheels trip data
+clean_df <- filter_df %>%
+  mutate(
+    # Extract datetime components
+    #date = as.Date(started_at),
+    hour = hour(started_at),
+    day_of_week = wday(started_at, label = FALSE),  # 1=Sunday, 7=Saturday
+    day_of_month = day(started_at),
+    month = month(started_at),
+    
+    # Binary indicators
+    weekend = ifelse(day_of_week %in% c(1, 7), 1, 0),
+    
+    # Holiday indicator (you'll need to define holiday dates)
+    #holiday = ifelse(date %in% holiday_dates, 1, 0),
+    
+    # Working day (weekday AND not holiday)
+    workingday = ifelse(weekend == 0, 1, 0),
+    
+    # Time of day categories
+    #time_category = case_when(
+    #  hour >= 0 & hour <= 6 ~ "early_morning",
+    #  hour >= 7 & hour <= 9 ~ "morning_rush",
+    #  hour >= 10 & hour <= 15 ~ "midday",
+    #  hour >= 16 & hour <= 19 ~ "evening_rush",
+    #  hour >= 20 & hour <= 23 ~ "evening"
+    #),
+    
+    # Rush hour binary
+    is_rush_hour = ifelse(hour %in% c(7,8,9,17,18,19), 1, 0)
+  )
+
+clean_df <- clean_df %>% 
+  dplyr::select(-started_at)
+
+filename <- "clean.csv"
+write_csv(clean_df, filename)
+```
+
+DO IT ALL AGAIN FOR JUNE 2019
+
+Load in data
+
+```{r}
+# get file
+file2 <- list.files(this_dir, pattern = "201906-baywheels-tripdata", full.names = TRUE)
+
+# read csv
+session_log <- read.csv(file2)
+
+df2 <- data.frame(session_log)
+```
+
+Delete columns
+
+```{r}
+filter_df2 <- df2 %>%
+  filter(!is.na(start_station_id), 
+         !is.na(start_station_name),
+         start_station_id != "",
+         start_station_name != "")
+
+filter_df2 <- filter_df2 %>% 
+  dplyr::select(-duration_sec, -end_time, -start_station_latitude, -start_station_longitude, -end_station_id, -end_station_name, -end_station_latitude, -end_station_longitude, -bike_id, -rental_access_method)
+
+filter_df2 <- filter_df2 %>%
+  dplyr::rename(member_casual = user_type)
+
+filter_df2 <- filter_df2 %>%
+  mutate(
+    member_casual = case_when(
+      member_casual == "Subscriber" ~ "member",
+      member_casual == "Customer" ~ "casual",
+      TRUE ~ member_casual
+    )
+  )
+
+# After reading your Bay Wheels trip data
+clean_df2 <- filter_df2 %>%
+  mutate(
+    # Extract datetime components
+    #date = as.Date(started_at),
+    hour = hour(start_time),
+    day_of_week = wday(start_time, label = FALSE),  # 1=Sunday, 7=Saturday
+    day_of_month = day(start_time),
+    month = month(start_time),
+    
+    # Binary indicators
+    weekend = ifelse(day_of_week %in% c(1, 7), 1, 0),
+    
+    # Working day (weekday AND not holiday)
+    workingday = ifelse(weekend == 0, 1, 0),
+    
+    # Rush hour binary
+    is_rush_hour = ifelse(hour %in% c(7,8,9,17,18,19), 1, 0)
+  )
+
+clean_df2 <- clean_df2 %>% 
+  dplyr::select(-start_time)
+
+filename <- "clean2019.csv"
+write_csv(clean_df2, filename)
+```
+
+
+check station names
+```{r}
+# Check 2019 station names
+df2 %>%
+  distinct(start_station_name) %>%
+  filter(str_detect(start_station_name, 
+                    "Embarcadero|Montgomery|Powell|Civic|16th|24th|Glen|Balboa")) %>%
+  arrange(start_station_name) %>%
+  print(n = 50)
+
+# Check 2025 station names  
+df %>%
+  distinct(start_station_name) %>%
+  filter(str_detect(start_station_name,
+                    "Embarcadero|Montgomery|Powell|Civic|16th|24th|Glen|Balboa")) %>%
+  arrange(start_station_name) %>%
+  print(n = 50)
+```
+
+
+clean environment
+```{r}
+#rm(list = ls())
+```
+
+
+
