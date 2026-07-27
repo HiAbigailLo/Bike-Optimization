@@ -1,8 +1,12 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+RESULTS_DIR = 'results'
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # Load data
 df = pd.read_csv('hourly.csv')
@@ -58,7 +62,7 @@ for param, value in grid_search.best_params_.items():
 
 print(f"\nBest cross-validation MAE: {-grid_search.best_score_:.4f}")
 
-with open('best_params.txt', 'w') as f:
+with open(os.path.join(RESULTS_DIR, 'best_params.txt'), 'w') as f:
     for param, value in grid_search.best_params_.items():
         f.write(f"{param}: {value}\n")
     f.write(f"best_cv_mae: {-grid_search.best_score_:.4f}\n")
@@ -103,8 +107,8 @@ tuning_results = pd.DataFrame([{
     'R2': r2_tuned
 }])
 
-tuning_results.to_csv('final_model_progression.csv', index=False)
-print("\nSaved: final_model_progression.csv")
+tuning_results.to_csv(os.path.join(RESULTS_DIR, 'final_model_progression.csv'), index=False)
+print(f"\nSaved: {RESULTS_DIR}/final_model_progression.csv")
 
 # Feature importance of final model
 feature_importance_final = pd.DataFrame({
@@ -114,4 +118,4 @@ feature_importance_final = pd.DataFrame({
 
 print("feature importance")
 print(feature_importance_final.to_string(index=False))
-feature_importance_final.to_csv('feature_importance_final_tuned.csv', index=False)
+feature_importance_final.to_csv(os.path.join(RESULTS_DIR, 'feature_importance_final_tuned.csv'), index=False)

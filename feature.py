@@ -1,9 +1,15 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+
+FIGURES_DIR = 'figures'
+RESULTS_DIR = 'results'
+os.makedirs(FIGURES_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # prepare data
 
@@ -126,7 +132,7 @@ print("FEATURE SELECTION RESULTS (sorted by correlation)")
 print(results_df.to_string(index=False))
 
 # Save results
-results_df.to_csv('feature_selection_results.csv', index=False)
+results_df.to_csv(os.path.join(RESULTS_DIR, 'feature_selection_results.csv'), index=False)
 
 # Find simplest model with <2% performance loss
 acceptable_loss = 0.98  # 98% of baseline performance
@@ -185,8 +191,8 @@ axes[1].legend()
 axes[1].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('feature_selection_analysis.png', dpi=300)
-print("\n Saved: feature_selection_analysis.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'feature_selection_analysis.png'), dpi=300)
+print(f"\n Saved: {FIGURES_DIR}/feature_selection_analysis.png")
 
 # keep best model
 X_final = df[recommended_features]
@@ -214,10 +220,10 @@ feature_importance_final = pd.DataFrame({
 print("\nFinal feature importance:")
 print(feature_importance_final.to_string(index=False))
 
-feature_importance_final.to_csv('feature_importance_simplified.csv', index=False)
+feature_importance_final.to_csv(os.path.join(RESULTS_DIR, 'feature_importance_simplified.csv'), index=False)
 
 print(f"   Recommended features saved for parameter tuning: {recommended_features}")
 
 #save terminal
-with open('selected_features.txt', 'w') as f:
+with open(os.path.join(RESULTS_DIR, 'selected_features.txt'), 'w') as f:
     f.write(','.join(recommended_features))

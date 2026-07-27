@@ -1,9 +1,15 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+
+FIGURES_DIR = 'figures'
+RESULTS_DIR = 'results'
+os.makedirs(FIGURES_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # load data
 df = pd.read_csv('hourly.csv')
@@ -63,7 +69,7 @@ feature_importance = pd.DataFrame({
 }).sort_values('Importance', ascending=False)
 
 print(feature_importance.to_string(index=False))
-feature_importance.to_csv('feature_importance_base.csv', index=False)
+feature_importance.to_csv(os.path.join(RESULTS_DIR, 'feature_importance_base.csv'), index=False)
 
 # create some plots
 
@@ -78,8 +84,8 @@ plt.ylabel('Predicted Demand (bikes)')
 plt.title('Random Forest (Actual vs Predicted Demand)')
 plt.legend()
 plt.tight_layout()
-plt.savefig('rf_actual_vs_predicted_base.png', dpi=300)
-print("\nSaved: rf_actual_vs_predicted.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'rf_actual_vs_predicted_base.png'), dpi=300)
+print(f"\nSaved: {FIGURES_DIR}/rf_actual_vs_predicted_base.png")
 
 # Plot 2: Feature Importance
 plt.figure(figsize=(10, 6))
@@ -87,10 +93,10 @@ plt.barh(feature_importance['Feature'], feature_importance['Importance'])
 plt.xlabel('Importance')
 plt.title('Random Forest Feature Importance')
 plt.tight_layout()
-plt.savefig('feature_importance_base.png', dpi=300)
-print("Saved: feature_importance.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'feature_importance_base.png'), dpi=300)
+print(f"Saved: {FIGURES_DIR}/feature_importance_base.png")
 
 print("\nFiles created:")
-print("  1. feature_importance.csv")
-print("  2. rf_actual_vs_predicted.png")
-print("  3. feature_importance.png")
+print(f"  1. {RESULTS_DIR}/feature_importance_base.csv")
+print(f"  2. {FIGURES_DIR}/rf_actual_vs_predicted_base.png")
+print(f"  3. {FIGURES_DIR}/feature_importance_base.png")

@@ -1,4 +1,5 @@
 # Import libraries
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -8,6 +9,11 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+
+FIGURES_DIR = 'figures'
+RESULTS_DIR = 'results'
+os.makedirs(FIGURES_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # load hourly demand
 df = pd.read_csv('hourly.csv')
@@ -105,8 +111,8 @@ results_df = pd.DataFrame(results)
 results_df = results_df.sort_values('Correlation', ascending=False)
 print(results_df.to_string(index=False))
 
-results_df.to_csv('model_comparison_results.csv', index=False)
-print("\nResults saved to: model_comparison_results.csv")
+results_df.to_csv(os.path.join(RESULTS_DIR, 'model_comparison_results.csv'), index=False)
+print(f"\nResults saved to: {RESULTS_DIR}/model_comparison_results.csv")
 
 # feature importance
 print("FEATURE IMPORTANCE (Random Forest)")
@@ -116,7 +122,7 @@ feature_importance = pd.DataFrame({
 }).sort_values('Importance', ascending=False)
 
 print(feature_importance.to_string(index=False))
-feature_importance.to_csv('feature_importance.csv', index=False)
+feature_importance.to_csv(os.path.join(RESULTS_DIR, 'feature_importance.csv'), index=False)
 
 # make some plots
 
@@ -131,8 +137,8 @@ plt.ylabel('Predicted Demand (bikes)')
 plt.title('Random Forest (Actual vs Predicted Demand)')
 plt.legend()
 plt.tight_layout()
-plt.savefig('rf_actual_vs_predicted.png', dpi=300)
-print("\nSaved: rf_actual_vs_predicted.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'rf_actual_vs_predicted.png'), dpi=300)
+print(f"\nSaved: {FIGURES_DIR}/rf_actual_vs_predicted.png")
 
 # Plot 2: Model Comparison
 plt.figure(figsize=(10, 6))
@@ -143,8 +149,8 @@ plt.ylabel('Score')
 plt.xticks(rotation=45, ha='right')
 plt.legend(['Correlation', 'MAE (bikes)', 'RMSE (bikes)'])
 plt.tight_layout()
-plt.savefig('model_comparison.png', dpi=300)
-print("Saved: model_comparison.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'model_comparison.png'), dpi=300)
+print(f"Saved: {FIGURES_DIR}/model_comparison.png")
 
 # Plot 3: Feature Importance
 plt.figure(figsize=(10, 6))
@@ -152,15 +158,15 @@ plt.barh(feature_importance['Feature'], feature_importance['Importance'])
 plt.xlabel('Importance')
 plt.title('Random Forest Feature Importance')
 plt.tight_layout()
-plt.savefig('feature_importance.png', dpi=300)
-print("Saved: feature_importance.png")
+plt.savefig(os.path.join(FIGURES_DIR, 'feature_importance.png'), dpi=300)
+print(f"Saved: {FIGURES_DIR}/feature_importance.png")
 
 print("\n" + "="*50)
 print("ANALYSIS COMPLETE!")
 print("="*50)
 print("\nFiles created:")
-print("  1. model_comparison_results.csv")
-print("  2. feature_importance.csv")
-print("  3. rf_actual_vs_predicted.png")
-print("  4. model_comparison.png")
-print("  5. feature_importance.png")
+print(f"  1. {RESULTS_DIR}/model_comparison_results.csv")
+print(f"  2. {RESULTS_DIR}/feature_importance.csv")
+print(f"  3. {FIGURES_DIR}/rf_actual_vs_predicted.png")
+print(f"  4. {FIGURES_DIR}/model_comparison.png")
+print(f"  5. {FIGURES_DIR}/feature_importance.png")

@@ -1,8 +1,13 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('model_comparison_results.csv')
+FIGURES_DIR = 'figures'
+RESULTS_DIR = 'results'
+os.makedirs(FIGURES_DIR, exist_ok=True)
+
+df = pd.read_csv(os.path.join(RESULTS_DIR, 'model_comparison_results.csv'))
 
 COLOR_CORR = '#008300'   # green
 COLOR_MAE = '#2a78d6'    # blue
@@ -49,5 +54,5 @@ axes[1].legend(frameon=False, labelcolor=INK)
 
 fig.suptitle('Model Performance Comparison', fontsize=14, color=INK)
 plt.tight_layout()
-plt.savefig('model_comparison.png', dpi=300)
-print('Saved: model_comparison.png')
+plt.savefig(os.path.join(FIGURES_DIR, 'model_comparison.png'), dpi=300)
+print(f'Saved: {FIGURES_DIR}/model_comparison.png')
