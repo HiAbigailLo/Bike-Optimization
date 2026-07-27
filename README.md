@@ -1,4 +1,4 @@
-# Bay Area Bike Share Demand Prediction
+# Bike-Share Demand Forecasting
 Phase 1: 
 - Built and tuned a Random Forest to predict hourly bike demand using trip-level data from Bay Wheels stations
 - Compared 5 ML algorithms, simplified the feature set, and tuned hyperparameters to raise R² by 7.6% (0.48 → 0.52) and cut MAE by 4.5%
